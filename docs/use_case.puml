@@ -1,0 +1,27 @@
+@startuml
+Unauthenticated_user --> (Authenticate)
+
+(Manage courts) <|-- (Read courts)
+(Manage courts) <|-- (Create courts)
+(Manage courts) <|-- (Update courts)
+(Manage courts) <|-- (Delete courts)
+
+(Manage surfaces) <|-- (Read surfaces)
+(Manage surfaces) <|-- (Create surfaces)
+(Manage surfaces) <|-- (Update surfaces)
+(Manage surfaces) <|-- (Delete surfaces)
+
+(Manage reservations) <|-- (Read reservations)
+(Manage reservations) <|-- (Create reservations)
+(Manage reservations) <|-- (Update reservations)
+(Manage reservations) <|-- (Delete reservations)
+
+
+Authenticated_user ---> (Read courts)
+Authenticated_user ---> (Create reservations)
+Authenticated_user ---> (Read surfaces)
+
+Admin ---> (Manage reservations)
+Admin ---> (Manage surfaces)
+Admin ---> (Manage courts)
+@enduml

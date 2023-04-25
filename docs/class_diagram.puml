@@ -1,0 +1,188 @@
+@startuml tennisclub
+
+'----------------
+' CONTROLLERS
+'----------------
+class CourtController <<  RestController  >> {
+    + CourtController(courtService: CourtService)
+    + getCourts(): Collection<ResponseCourtDTO>
+    + createCourt(court: CreateCourtDTO) : ResponseCourtDTO
+    + updateCourt(court: UpdateCourtDTO): ResponseCourtDTO
+    + deleteCourt(id: Long)
+}
+
+class ReservationController <<  RestController  >> {
+    + ReservationController(reservationService: ReservationService)
+    + getReservations(phoneNumber: String, courtNumber: Long, orderByCreation: Boolean): Collection<ResponseReservationDTO>
+    + createReservation(reservation: CreateReservationDTO) : BigDecimal
+    + updateReservation(reservation: UpdateReservationDTO): ResponseReservationDTO
+    + deleteReservation(id: Long)
+}
+
+class SurfaceController <<  RestController >> {
+    + SurfaceController(surfaceService: SurfaceService)
+    + getSurfaces(): Collection<ResponseSurfaceDTO>
+    + createSurface(surface: CreateSurfaceDTO) : ResponseSurfaceDTO
+    + updateSurface(surface: UpdateSurfaceDTO): ResponseSurfaceDTO
+    + deleteSurface(id: Long)
+}
+
+class AuthController <<  RestController  >> {
+   - authService: AuthService
+   + login()
+}
+
+'----------------
+' SERVICES
+'----------------
+class CourtService <<  Service  >> {
+    + CourtService(courtRepository: ICourtRepository)
+    + getCourts(): Collection<ResponseCourtDTO>
+    + createCourt(court: CreateCourtDTO) : ResponseCourtDTO
+    + updateCourt(court: UpdateCourtDTO): ResponseCourtDTO
+    + deleteCourt(id: Long)
+}
+
+class ReservationService <<  Service  >> {
+    + getReservations(phoneNumber: String, courtNumber: Long, orderByCreation: Boolean): Collection<ResponseReservationDTO>
+    + createReservation(reservation: CreateReservationDTO) : BigDecimal
+    + updateReservation(reservation: UpdateReservationDTO): ResponseReservationDTO
+    + deleteReservation(id: Long)
+}
+
+class UserService <<  Service  >> {
+    + UserService(userRepository: IUserRepository, smsService: ISmsService)
+    + getUsers(phoneNumber: String) : Collection<User>
+    + getUser(phoneNumber: String, password: String): User
+    + createUser(user: CreateReservationDTO) : User
+}
+
+class SurfaceService <<  Service  >> {
+    + SurfaceService(surfaceRepository: ISurfaceRepository)
+    + getSurfaces(): Collection<ResponseSurfaceDTO>
+    + createSurface(surface: CreateSurfaceDTO) : ResponseSurfaceDTO
+    + updateSurface(surface: UpdateSurfaceDTO): ResponseSurfaceDTO
+    + deleteSurface(id: Long)
+}
+
+class AuthService <<  Service  >> {
+    + AuthService(jwtService: JwtService, userService: UserService)
+    + authenticate()
+}
+
+class JwtService <<  Service  >> {
+    - secret: String
+    - accessTokenExpiration: long
+    - refreshTokenExpiration: long
+    + generateToken(user: User) : String
+    + isTokenValid(token: String): boolean
+    + isTokenExpired(token: String): boolean
+    + extractClaims(token: String) : Claims
+}
+
+interface ISmsService {
+    + sendRegistrationMessage(user: User)
+}
+
+class SmsTwilioService implements ISmsService
+
+'----------------
+' REPOSITORIES
+'----------------
+interface ICrudRepository<E, K> {
+    - getAll(): Collection<E>
+    - create(item: E): E
+    - update(item: E): E
+    - delete(key: K)
+}
+
+'surface repository
+interface ISurfaceRepository extends ICrudRepository
+class SurfaceH2Repository implements ISurfaceRepository
+
+'court repository
+interface ICourtRepository extends ICrudRepository
+class CourtH2Repository implements ICourtRepository
+
+'reservation repository
+interface IReservationRepository extends ICrudRepository
+class ReservationH2Repository implements IReservationRepository
+
+'user repository
+interface IUserRepository extends ICrudRepository
+class UserH2Repository implements IUserRepository
+
+'----------------
+' ENTITIES
+'----------------
+abstract class SoftDeletableEntity {
+    - createdAt: LocalDateTime
+    - deletedAt: LocalDateTime
+    - createdAt()
+}
+
+class Reservation <<  Entity  >> extends SoftDeletableEntity {
+    - id: Long
+    - heldAt: LocalDateTime
+    - heldUntil: LocalDateTime
+    - court: Court
+}
+
+class Court <<  Entity  >>  extends SoftDeletableEntity {
+    - id: Long
+}
+
+class Surface <<  Entity  >> extends SoftDeletableEntity {
+  - id: Long
+}
+
+class SurfacePrice <<  Entity  >> {
+  - id: Long
+  - validFrom: LocalDateTime
+  - validTo: LocalDateTime
+  - pricePerMinuteInCzk: BigDecimal
+}
+
+class User <<  Entity  >> extends SoftDeletableEntity {
+  - id: Long
+  - fullName: String
+  - phoneNumber: String
+  - password: String
+  - salt: String
+}
+
+enum UserRole {
+  USER = 1
+  ADMIN = 2
+}
+
+enum GameType {
+  SINGLES = 1
+  DOUBLES = 2
+}
+
+User "1" <--o "0...1" Reservation: is created by <
+User "0...*" --> "1" UserRole: has >
+
+GameType "1" <-- "0...*" Reservation : is of <
+
+Surface "1" <--o "0...*" Court: has <
+Surface "0...*" o--> "1" SurfacePrice: costs >
+
+CourtService "0...*" o--> "1" ICourtRepository : has >
+CourtController "0...*" o--> "1" CourtService : has >
+
+ReservationController "0...*" o--> "1" ReservationService : has >
+ReservationService "0...*" o--> "1" UserService : uses >
+ReservationService "0...*" o--> "1" IReservationRepository : has >
+
+UserService "0...*" o--> "1" ISmsService : uses >
+UserService "0...*" o--> "1" IUserRepository : has >
+
+AuthController "0...*" o--> "1" AuthService : has >
+AuthService "0...*" o--> "1" JwtService : uses >
+AuthService "0...*" o--> "1" UserService : uses >
+
+SurfaceService "0...*" o--> "1" ISurfaceRepository : has >
+SurfaceController "0...*" o--> "1" SurfaceService : has >
+@enduml
