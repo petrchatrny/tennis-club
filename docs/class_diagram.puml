@@ -90,10 +90,10 @@ class SmsTwilioService implements ISmsService
 ' REPOSITORIES
 '----------------
 interface ICrudRepository<E, K> {
-    - getAll(): Collection<E>
-    - create(item: E): E
-    - update(item: E): E
-    - delete(key: K)
+    + getAll(): Collection<E>
+    + create(item: E): E
+    + update(item: E): E
+    + delete(key: K)
 }
 
 'surface repository
@@ -116,16 +116,15 @@ class UserH2Repository implements IUserRepository
 ' ENTITIES
 '----------------
 abstract class SoftDeletableEntity {
-    - createdAt: LocalDateTime
-    - deletedAt: LocalDateTime
-    - createdAt()
+    # createdAt: LocalDateTime
+    # deletedAt: LocalDateTime
+    ~ createdAt()
 }
 
 class Reservation <<  Entity  >> extends SoftDeletableEntity {
     - id: Long
     - heldAt: LocalDateTime
     - heldUntil: LocalDateTime
-    - court: Court
 }
 
 class Court <<  Entity  >>  extends SoftDeletableEntity {
@@ -161,7 +160,8 @@ enum GameType {
   DOUBLES = 2
 }
 
-User "1" <--o "0...1" Reservation: is created by <
+User "1" <--o "0...*" Reservation: is created by <
+Court "1" <--o "0...*" Reservation: is held at <
 User "0...*" --> "1" UserRole: has >
 
 GameType "1" <-- "0...*" Reservation : is of <
