@@ -10,7 +10,8 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "surfaces")
+@Entity
+@Table(name = "surfaces")
 public class Surface extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "surface_prices")
+@Entity
+@Table(name = "surface_prices")
 public class SurfacePrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
