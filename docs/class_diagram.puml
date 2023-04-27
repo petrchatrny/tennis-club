@@ -89,28 +89,46 @@ class SmsTwilioService implements ISmsService
 '----------------
 ' REPOSITORIES
 '----------------
-interface ICrudRepository<E, K> {
+interface ICRUDRepository<E, K> {
     + getAll(): Collection<E>
+    + getOne(key: K): E
     + create(item: E): E
     + update(item: E): E
     + delete(key: K)
 }
 
+interface ICRUDSoftDeleteRepository<E, K> extends ICRUDRepository{
+    + getAll(includeDeleted: Boolean): Collection<E>
+    + getOne(key: K, includeDeleted: Boolean): E
+}
+
 'surface repository
-interface ISurfaceRepository extends ICrudRepository
-class SurfaceH2Repository implements ISurfaceRepository
+interface ISurfaceRepository extends ICRUDSoftDeleteRepository
+class SurfaceH2Repository implements ISurfaceRepository {
+    - entityManager: EntityManager
+}
 
 'court repository
-interface ICourtRepository extends ICrudRepository
-class CourtH2Repository implements ICourtRepository
+interface ICourtRepository extends ICRUDSoftDeleteRepository
+class CourtH2Repository implements ICourtRepository {
+    - entityManager: EntityManager
+}
 
 'reservation repository
-interface IReservationRepository extends ICrudRepository
-class ReservationH2Repository implements IReservationRepository
+interface IReservationRepository extends ICRUDSoftDeleteRepository {
+    + getAllByUser(userPhoneNumber: String, courtNumber: Long, pendingOnly: Boolean)
+}
+class ReservationH2Repository implements IReservationRepository {
+    - entityManager: EntityManager
+}
 
 'user repository
-interface IUserRepository extends ICrudRepository
-class UserH2Repository implements IUserRepository
+interface IUserRepository extends ICRUDSoftDeleteRepository {
+    + getOne(phoneNumber: String): User
+}
+class UserH2Repository implements IUserRepository {
+    - entityManager: EntityManager
+}
 
 '----------------
 ' ENTITIES
