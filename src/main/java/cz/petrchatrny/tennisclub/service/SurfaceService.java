@@ -112,7 +112,7 @@ public final class SurfaceService {
             errors.put("pricePerMinuteInCzk", "is required field");
         } else if (dto.pricePerMinuteInCzk().compareTo(BigDecimal.ZERO) < 0) {
             // negative price handling
-            errors.put("pricePerMinuteInCzk", "should be bigger than 0");
+            errors.put("pricePerMinuteInCzk", "should be greater than or equal to 0");
         }
 
         return errors;

@@ -57,7 +57,8 @@ public class UserH2Repository implements IUserRepository {
     public User getOne(String phoneNumber) {
         String jpql = "SELECT u " +
                       "FROM User u " +
-                      "WHERE phoneNumber = :phoneNumber AND deletedAt is null";
+                      "WHERE phoneNumber = :phoneNumber " +
+                        "AND deletedAt is null";
 
         TypedQuery<User> query = entityManager
                 .createQuery(jpql, User.class)
