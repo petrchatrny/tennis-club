@@ -103,7 +103,7 @@ public final class SurfaceService {
         return errors;
     }
 
-    private Surface checkExistingSurface(Long id) {
+    public Surface checkExistingSurface(Long id) {
         Surface surface = surfaceRepository.getOne(id);
         if (surface == null) {
             throw new ResourceNotFoundException("no surface with given id");

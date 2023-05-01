@@ -1,8 +1,6 @@
 package cz.petrchatrny.tennisclub.repository.court;
 
 import cz.petrchatrny.tennisclub.model.Court;
-import cz.petrchatrny.tennisclub.model.Surface;
-import cz.petrchatrny.tennisclub.repository.surface.ISurfaceRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
@@ -15,8 +13,8 @@ import java.util.Collection;
  * Implementation of ICourtRepository for manipulation with
  * Courts in H2 database.
  *
- * @see Surface
- * @see ISurfaceRepository
+ * @see Court
+ * @see ICourtRepository
  */
 @Repository
 public class CourtH2Repository implements ICourtRepository {
@@ -28,10 +26,10 @@ public class CourtH2Repository implements ICourtRepository {
 
     @Override
     public Collection<Court> getAll(Boolean includeDeleted) {
-        String jpql = "SELECT c FROM Court c";
+        String jpql = "SELECT c FROM Court c ";
 
         if (!includeDeleted) {
-            jpql += "AND deletedAt is null ";
+            jpql += "WHERE deletedAt is null ";
         }
 
         TypedQuery<Court> query = entityManager.createQuery(jpql, Court.class);
@@ -51,7 +49,12 @@ public class CourtH2Repository implements ICourtRepository {
         TypedQuery<Court> query = entityManager
                 .createQuery(jpql, Court.class)
                 .setParameter("key", key);
-        return query.getSingleResult();
+
+        return query
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
