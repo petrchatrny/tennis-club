@@ -3,6 +3,7 @@ package cz.petrchatrny.tennisclub.repository.surfaceprice;
 import cz.petrchatrny.tennisclub.model.SurfacePrice;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -16,12 +17,14 @@ public class SurfacePriceH2Repository implements ISurfacePriceRepository {
     }
 
     @Override
+    @Transactional
     public SurfacePrice create(SurfacePrice price) {
         entityManager.persist(price);
         return price;
     }
 
     @Override
+    @Transactional
     public void invalidate(Long id) {
         String jpql = "SELECT sp " +
                       "FROM SurfacePrice sp " +

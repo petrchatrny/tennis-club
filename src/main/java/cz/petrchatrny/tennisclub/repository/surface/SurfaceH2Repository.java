@@ -50,7 +50,10 @@ public class SurfaceH2Repository implements ISurfaceRepository {
                 .createQuery(jpql, Surface.class)
                 .setParameter("key", key);
 
-        return query.getSingleResult();
+        return query.getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
