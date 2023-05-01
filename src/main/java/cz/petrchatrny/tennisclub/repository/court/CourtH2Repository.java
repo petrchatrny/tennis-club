@@ -37,6 +37,20 @@ public class CourtH2Repository implements ICourtRepository {
     }
 
     @Override
+    public Collection<Court> getAllBySurface(Long surfaceId) {
+        String jpql = "SELECT c " +
+                      "FROM Court c " +
+                      "WHERE deletedAt is null " +
+                        "AND c.surface.id = :surfaceId";
+
+        TypedQuery<Court> query = entityManager
+                .createQuery(jpql, Court.class)
+                .setParameter("surfaceId", surfaceId);
+
+        return query.getResultList();
+    }
+
+    @Override
     public Court getOne(Long key, Boolean includeDeleted) {
         String jpql = "SELECT c " +
                       "FROM Court c " +

@@ -1,12 +1,16 @@
 package cz.petrchatrny.tennisclub.service;
 
+import cz.petrchatrny.tennisclub.dto.court.CourtDTOMapper;
 import cz.petrchatrny.tennisclub.dto.surface.CreateSurfaceDTO;
 import cz.petrchatrny.tennisclub.dto.surface.ResponseSurfaceDTO;
 import cz.petrchatrny.tennisclub.dto.surface.SurfaceDTOMapper;
+import cz.petrchatrny.tennisclub.error.exception.ResourceDependencyException;
 import cz.petrchatrny.tennisclub.error.exception.ResourceNotFoundException;
 import cz.petrchatrny.tennisclub.error.exception.UnexpectedUserInputException;
+import cz.petrchatrny.tennisclub.model.Court;
 import cz.petrchatrny.tennisclub.model.Surface;
 import cz.petrchatrny.tennisclub.model.SurfacePrice;
+import cz.petrchatrny.tennisclub.repository.court.ICourtRepository;
 import cz.petrchatrny.tennisclub.repository.surface.ISurfaceRepository;
 import cz.petrchatrny.tennisclub.repository.surfaceprice.ISurfacePriceRepository;
 import org.springframework.stereotype.Service;
@@ -22,10 +26,16 @@ import java.util.Map;
 public final class SurfaceService {
     private final ISurfaceRepository surfaceRepository;
     private final ISurfacePriceRepository surfacePriceRepository;
+    private final ICourtRepository courtRepository;
 
-    public SurfaceService(ISurfaceRepository surfaceRepository, ISurfacePriceRepository surfacePriceRepository) {
+    public SurfaceService(
+            ISurfaceRepository surfaceRepository,
+            ISurfacePriceRepository surfacePriceRepository,
+            ICourtRepository courtRepository
+    ) {
         this.surfaceRepository = surfaceRepository;
         this.surfacePriceRepository = surfacePriceRepository;
+        this.courtRepository = courtRepository;
     }
 
     public Collection<ResponseSurfaceDTO> getSurfaces() {
@@ -76,9 +86,14 @@ public final class SurfaceService {
     }
 
     public void deleteSurface(Long id) {
+        // check surface existence
         Surface surface = checkExistingSurface(id);
         surface.getPrices().forEach(price -> surfacePriceRepository.invalidate(price.getId()));
 
+        // check surface dependency
+        checkSurfaceDependencies(surface.getId());
+        
+        // delete surface
         surfaceRepository.delete(id);
     }
 
@@ -119,5 +134,14 @@ public final class SurfaceService {
                         .pricePerMinuteInCzk(pricePerMinuteInCzk)
                         .build()
         );
+    }
+    
+    private void checkSurfaceDependencies(Long surfaceId) {
+        Collection<Court> dependentCourts = courtRepository.getAllBySurface(surfaceId);
+        if (!dependentCourts.isEmpty()) {
+            throw new ResourceDependencyException(
+                    "could not delete surface - it is dependency for courts",
+                    dependentCourts.stream().map(CourtDTOMapper.COURT_TO_RESPONSE_COURT_DTO).toList());
+        }
     }
 }
