@@ -66,7 +66,7 @@ public class CourtService {
         courtRepository.delete(id);
     }
 
-    private Court checkExistingCourt(Long id) {
+    public Court checkExistingCourt(Long id) {
         Court court = courtRepository.getOne(id);
         if (court == null) {
             throw new ResourceNotFoundException("no court with given id");
