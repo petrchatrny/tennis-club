@@ -82,7 +82,10 @@ public class ReservationH2Repository implements IReservationRepository {
                 .createQuery(jpql, Reservation.class)
                 .setParameter("key", key);
 
-        return query.getSingleResult();
+        return query.getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
