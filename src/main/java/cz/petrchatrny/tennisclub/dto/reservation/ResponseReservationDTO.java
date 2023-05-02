@@ -19,6 +19,7 @@ public final class ResponseReservationDTO {
     private final LocalDateTime heldUntil;
     private final Long courtNumber;
     private final GameType gameType;
+    private final LocalDateTime createdAt;
     private  ResponseUserDTO user;
     private  BigDecimal price;
 }

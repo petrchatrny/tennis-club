@@ -15,6 +15,7 @@ public class ReservationDTOMapper {
                         reservation.getHeldUntil(),
                         reservation.getCourt().getId(),
                         reservation.getGameType(),
+                        reservation.getCreatedAt(),
                         user,
                         null
                 );

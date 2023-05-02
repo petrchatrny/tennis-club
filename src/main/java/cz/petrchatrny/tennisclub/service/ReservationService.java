@@ -9,6 +9,8 @@ import cz.petrchatrny.tennisclub.repository.reservation.IReservationRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,7 @@ public class ReservationService {
     private final IReservationRepository reservationRepository;
     private final UserService userService;
     private final CourtService courtService;
+    private final long MINIMAL_RESERVATION_DURATION_IN_MINUTES = 30;
 
     public ReservationService(
             IReservationRepository reservationRepository,
@@ -152,6 +155,17 @@ public class ReservationService {
 
         if (dto.getCourtNumber() == null) {
             errors.put("courtNumber", "is required field");
+        }
+
+        if (dto.getHeldAt() != null && dto.getHeldUntil() != null) {
+            long durationInMinutes = ChronoUnit.MINUTES.between(dto.getHeldAt(), dto.getHeldUntil());
+            if (durationInMinutes < MINIMAL_RESERVATION_DURATION_IN_MINUTES) {
+                errors.put("timeIntervalLength", "minimal duration is " + MINIMAL_RESERVATION_DURATION_IN_MINUTES + " minutes");
+            }
+
+            if (dto.getHeldAt().isBefore(LocalDateTime.now().plusDays(1L))) {
+                errors.put("heldAt", "must be at least 1 day ahead from now");
+            }
         }
 
         return errors;

@@ -60,6 +60,8 @@ public class ReservationH2Repository implements IReservationRepository {
             jpql += "AND heldUntil > NOW() ";
         }
 
+        jpql += "ORDER BY r.createdAt DESC ";
+
         TypedQuery<Reservation> query = entityManager.createQuery(jpql, Reservation.class);
         for (String key : parameters.keySet()) {
             query.setParameter(key, parameters.get(key));
@@ -110,7 +112,8 @@ public class ReservationH2Repository implements IReservationRepository {
         String jpql = "SELECT DATEDIFF(MINUTE, r.heldAt, r.heldUntil) * sp.pricePerMinuteInCzk AS total_price " +
                       "FROM Reservation r " +
                         "JOIN r.court c " +
-                        "JOIN SurfacePrice sp " +
+                        "JOIN c.surface s " +
+                        "JOIN c.surface.prices sp " +
                       "WHERE r.id = :id " +
                         "AND sp.validFrom <= r.heldAt " +
                         "AND (sp.validTo >= r.heldUntil OR sp.validTo = null)";
@@ -119,7 +122,7 @@ public class ReservationH2Repository implements IReservationRepository {
                 .createQuery(jpql, BigDecimal.class)
                 .setParameter("id", id);
 
-        return query.getResultList().get(0);
+        return query.getSingleResult();
     }
 
     @Override
