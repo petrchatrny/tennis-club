@@ -50,7 +50,11 @@ public class UserH2Repository implements IUserRepository {
                 .createQuery(jpql, User.class)
                 .setParameter("key", key);
 
-        return query.getSingleResult();
+        return query
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -64,7 +68,11 @@ public class UserH2Repository implements IUserRepository {
                 .createQuery(jpql, User.class)
                 .setParameter("phoneNumber", phoneNumber);
 
-        return query.getSingleResult();
+        return query
+                .getResultList()
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
