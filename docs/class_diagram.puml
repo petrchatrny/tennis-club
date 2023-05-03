@@ -209,7 +209,7 @@ CourtController "0...*" o--> "1" CourtService : has >
 
 ReservationController "0...*" o--> "1" ReservationService : has >
 ReservationService "0...*" o--> "1" UserService : uses >
-ReservationService "0...*" o--> "1" IReservationRepository : has >
+ReservationService "0...*" o-----> "1" IReservationRepository : has >
 ReservationService "0...*" o--> "1" CourtService : uses >
 
 UserService "0...*" o--> "1" ISmsService : uses >

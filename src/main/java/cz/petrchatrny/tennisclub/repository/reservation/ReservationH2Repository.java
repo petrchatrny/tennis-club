@@ -32,7 +32,7 @@ public class ReservationH2Repository implements IReservationRepository {
         String jpql = "SELECT r FROM Reservation r ";
 
         if (!includeDeleted) {
-            jpql += "WHERE deletedAt != null ";
+            jpql += "WHERE deletedAt is null ";
         }
 
         TypedQuery<Reservation> query = entityManager.createQuery(jpql, Reservation.class);

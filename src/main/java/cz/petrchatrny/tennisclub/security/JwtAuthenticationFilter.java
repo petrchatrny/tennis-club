@@ -49,29 +49,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // get JWT
+        // get data
         jwt = authHeader.substring(AUTHENTICATION_SCHEME.length());
         userPhoneNumber = jwtService.getUserPhoneNumber(jwt);
+        User user = userService.getUser(userPhoneNumber);
 
         // check JWT
-        if (jwtService.isTokenExpired(jwt) || userService.getUser(userPhoneNumber) == null) {
+        if (jwtService.isTokenExpired(jwt) || user == null) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        // check user
-        if (userPhoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userService.getUser(userPhoneNumber);
-            if (user != null) {
-                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        // make user authenticated and authorized
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
-                // make user authenticated and authorized
-                SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(
-                                userPhoneNumber, null, authorities
-                        )
-                );
-            }
+            SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken(
+                            userPhoneNumber, null, authorities
+                    )
+            );
         }
 
         filterChain.doFilter(request, response);
