@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.nio.file.AccessDeniedException;
 
+/**
+ * Handler for converting spring's security default 401 error to 403 error
+ */
 @ControllerAdvice
 public class SecurityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)

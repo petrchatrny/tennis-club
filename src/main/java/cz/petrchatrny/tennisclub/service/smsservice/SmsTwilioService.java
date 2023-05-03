@@ -8,12 +8,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of IsmsService using Twilio SDK.
+ *
+ * @see ISmsService
+ */
 @Service
 public class SmsTwilioService implements ISmsService {
     private final TwilioConfig twilioConfig;
 
     private final Logger LOGGER = LoggerFactory.getLogger(SmsTwilioService.class);
 
+    /**
+     * Initializes Twilio service.
+     *
+     * @param twilioConfiguration configuration of SMS client
+     */
     public SmsTwilioService(TwilioConfig twilioConfiguration) {
         this.twilioConfig = twilioConfiguration;
         Twilio.init(

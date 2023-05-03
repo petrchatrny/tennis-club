@@ -13,14 +13,34 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * Service for generating ang validating JsonWebTokens.
+ *
+ * <p>
+ * It can generate token from claims and extract claims from token.
+ * It also signs tokens with secret key.
+ * </p>
+ *
+ * @see JwtConfig
+ */
 @Service
 public class JwtService {
     private final JwtConfig jwtConfig;
 
+    /**
+     * @param jwtConfig configuration of json web tokens like expiration date etc
+     */
     public JwtService(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
     }
 
+    /**
+     * Method generates new JWT.
+     *
+     * @param claims      extra information added to token
+     * @param phoneNumber user's unique phoneNumber for identification
+     * @return JWT
+     */
     public String generateToken(Map<String, Object> claims, String phoneNumber) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -31,8 +51,24 @@ public class JwtService {
                 .compact();
     }
 
+    /**
+     * Extracts user's phone number from token.
+     *
+     * @param token JWT
+     * @return user's phone number
+     */
     public String getUserPhoneNumber(String token) {
         return extractAllClaims(token).getSubject();
+    }
+
+    /**
+     * Checks if expiration date of taken is lower than current date
+     *
+     * @param token JWT
+     * @return if token is expired
+     */
+    public boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Key getSignInKey() {
@@ -46,9 +82,5 @@ public class JwtService {
                 .build();
 
         return parser.parseClaimsJws(token).getBody();
-    }
-
-    public boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
     }
 }

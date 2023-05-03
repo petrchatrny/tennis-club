@@ -15,6 +15,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Service for manipulation with Reservation entity.
+ *
+ * <p>
+ * It uses reservationRepository to perform CRUD operations and it also uses
+ * UserService and CourtService for obtaining these entities from DB because
+ * Reservation depends on Court and User.
+ * </p>
+ *
+ * @see IReservationRepository
+ * @see UserService
+ * @see CourtService
+ */
 @Service
 public class ReservationService {
     private final IReservationRepository reservationRepository;
@@ -22,6 +35,11 @@ public class ReservationService {
     private final CourtService courtService;
     private final long MINIMAL_RESERVATION_DURATION_IN_MINUTES = 30;
 
+    /**
+     * @param reservationRepository injected repository
+     * @param userService           injected service
+     * @param courtService          injected service
+     */
     public ReservationService(
             IReservationRepository reservationRepository,
             UserService userService,
@@ -32,6 +50,18 @@ public class ReservationService {
         this.courtService = courtService;
     }
 
+    /**
+     * Gets collection of all reservations that are not deleted.
+     *
+     * <p>
+     * If any param is provided, collection will be filtered by provided param.
+     * </p>
+     *
+     * @param phoneNumber user's phone number
+     * @param courtNumber id of court
+     * @param pendingOnly flag if only pending reservations should be included
+     * @return collection of reservations as ResponseReservationDTO format
+     */
     public Collection<ResponseReservationDTO> getReservations(
             String phoneNumber,
             Long courtNumber,
@@ -45,7 +75,22 @@ public class ReservationService {
                 .toList();
     }
 
-    public ResponseReservationDTO createReservation(CreateReservationDTO dto) {
+
+    /**
+     * Creates new Reservation entity.
+     *
+     * <p>
+     * Method checks user's input (meaningful time interval, etc), then it checks if
+     * there is a court for which a reservation is made.
+     * It also checks whether a user already exists in DB or if a new one should be created,
+     * in which case it sends them a text message with their password.
+     * </p>
+     *
+     * @param dto data transfer object containing all required fields
+     * @return created reservation in ResponseReservationDTO format
+     * @throws ResourceAlreadyExistsException if provided time interval is occupied
+     */
+    public ResponseReservationDTO createReservation(CreateReservationDTO dto) throws ResourceAlreadyExistsException {
         // validate inputs
         validateInputs(dto);
 
@@ -72,6 +117,17 @@ public class ReservationService {
         return res;
     }
 
+    /**
+     * Updates existing Reservation entity.
+     *
+     * <p>
+     * Searches for a reservation by id and if it finds it adjusts its values
+     * </p>
+     *
+     * @param id  reservation id
+     * @param dto data transfer object containing all required fields
+     * @return updated reservation in ResponseReservationDTO format
+     */
     public ResponseReservationDTO updateReservation(Long id, BaseReservationDTO dto) {
         // check reservation existence
         Reservation reservation = validateReservation(id);
@@ -95,6 +151,15 @@ public class ReservationService {
         return res;
     }
 
+    /**
+     * Soft deletes Reservation entity.
+     *
+     * <p>
+     * Searches for a reservation by id and if it finds it marks it as deleted.
+     * </p>
+     *
+     * @param id reservation id
+     */
     public void deleteReservation(Long id) {
         // check existence
         validateReservation(id);
@@ -103,7 +168,7 @@ public class ReservationService {
         reservationRepository.delete(id);
     }
 
-    private Reservation validateReservation(Long id) {
+    private Reservation validateReservation(Long id) throws ResourceNotFoundException {
         Reservation reservation = reservationRepository.getOne(id);
         if (reservation == null) {
             throw new ResourceNotFoundException("no reservation with given id");
@@ -124,7 +189,7 @@ public class ReservationService {
         return user;
     }
 
-    private void validateInputs(BaseReservationDTO dto) {
+    private void validateInputs(BaseReservationDTO dto) throws UnexpectedUserInputException {
         Map<String, String> errors;
 
         if (dto instanceof CreateReservationDTO) {

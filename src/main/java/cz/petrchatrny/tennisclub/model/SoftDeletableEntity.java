@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Abstract entity used for implementation of soft delete operation
+ */
 @MappedSuperclass
 @Getter
 @Setter

@@ -10,16 +10,36 @@ import org.springframework.stereotype.Service;
 import java.util.Base64;
 import java.util.HashMap;
 
+/**
+ * Service used for authenticating users. It uses UserService to search for users
+ * and JwtService to generate JWT tokens.
+ *
+ * @see UserService
+ * @see JwtService
+ */
 @Service
 public class AuthService {
     private final UserService userService;
     private final JwtService jwtService;
 
+    /**
+     * @param userService injected UserService
+     * @param jwtService  injected JwtService
+     */
     public AuthService(UserService userService, JwtService jwtService) {
         this.userService = userService;
         this.jwtService = jwtService;
     }
 
+    /**
+     * Method checks HTTP header for basic authentication and if it finds it, it
+     * parses credentials from header and tries to authenticate the user by
+     * the obtained credentials. If user is authenticated, it generates JWT
+     * token and puts it in the HTTP response's header.
+     *
+     * @param request HTTP request
+     * @return HTTP response including status if user is authenticated or not
+     */
     public ResponseEntity<?> authenticate(HttpServletRequest request) {
         // check header
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

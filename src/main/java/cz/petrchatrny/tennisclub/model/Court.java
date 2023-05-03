@@ -3,6 +3,9 @@ package cz.petrchatrny.tennisclub.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Entity representing tennis court
+ */
 @Builder
 @Getter
 @Setter

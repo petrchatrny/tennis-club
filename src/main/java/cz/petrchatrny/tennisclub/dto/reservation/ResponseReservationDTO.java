@@ -9,6 +9,10 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Response form of Reservation
+ * @see cz.petrchatrny.tennisclub.model.Reservation
+ */
 @Getter
 @Setter
 @Builder

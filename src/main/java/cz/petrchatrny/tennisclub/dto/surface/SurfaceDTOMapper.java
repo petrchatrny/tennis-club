@@ -7,7 +7,16 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Class containing mappers for conversion between Surface and SurfaceDTOs
+ */
 public class SurfaceDTOMapper {
+    /**
+     * Conversion of Surface model to ResponseSurfaceDTO
+     *
+     * @see Surface
+     * @see ResponseSurfaceDTO
+     */
     public static final Function<Surface, ResponseSurfaceDTO> SURFACE_TO_RESPONSE_SURFACE_DTO =
             surface -> {
                 List<SurfacePrice> prices = surface.getPrices()

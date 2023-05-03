@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class used for authentication control using JWT tokens.
+ * For requests to protected endpoints it checks the header to see if
+ * it contains a valid JWT token and authenticates the user if it does.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final String AUTHENTICATION_SCHEME = "Bearer ";

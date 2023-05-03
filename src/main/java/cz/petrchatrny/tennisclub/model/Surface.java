@@ -6,6 +6,9 @@ import lombok.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Entity representing surface of tennis court
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +26,9 @@ public class Surface extends SoftDeletableEntity {
     @JoinColumn(name = "id_surface")
     private Set<SurfacePrice> prices;
 
+    /**
+     * @return list of valid prices
+     */
     public List<SurfacePrice> getValidPrices() {
         return getPrices()
                 .stream()

@@ -7,6 +7,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing price of court's surface.
+ * It allows to keep track of price changes and get the correct prices in the past.
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

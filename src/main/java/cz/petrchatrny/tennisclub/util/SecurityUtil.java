@@ -6,7 +6,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 
+/**
+ * Utility class for generating passwords, salts and hashed.
+ */
 public class SecurityUtil {
+    /**
+     * creates hash from input text by using SHA-256 algorithm
+     *
+     * @param text to be hashed
+     * @param salt to strengthen the hash
+     * @return hashed text
+     */
     public static String hash(String text, String salt) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -18,6 +28,12 @@ public class SecurityUtil {
         }
     }
 
+    /**
+     * generates random password using ascii characters
+     *
+     * @param length output length of password
+     * @return random password
+     */
     public static String generateRandomPassword(int length) {
         Random random = new Random();
         StringBuilder value = new StringBuilder();
@@ -31,6 +47,12 @@ public class SecurityUtil {
         return value.toString();
     }
 
+    /**
+     * generates random salt to strengthen the hash
+     *
+     * @param length of salt
+     * @return generated salt
+     */
     public static String generateRandomSalt(int length) {
         SecureRandom secureRandom = new SecureRandom();
         byte[] saltBytes = new byte[length];

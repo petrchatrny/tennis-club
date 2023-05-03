@@ -6,6 +6,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Required fields for both create and update operations upon reservations.
+ */
 @Getter
 @AllArgsConstructor
 public class BaseReservationDTO {

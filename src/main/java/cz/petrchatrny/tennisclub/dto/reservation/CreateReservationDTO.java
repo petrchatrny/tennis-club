@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Required fields for creating Reservation
+ */
 @Getter
 public class CreateReservationDTO extends BaseReservationDTO{
     private final  String phoneNumber;

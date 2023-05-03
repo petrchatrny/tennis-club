@@ -5,6 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/**
+ * Handler for BaseApiExceptions and its descendants
+ */
 @ControllerAdvice
 public class BaseApiExceptionHandler {
     @ExceptionHandler(value = BaseApiException.class)

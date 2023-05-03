@@ -2,6 +2,9 @@ package cz.petrchatrny.tennisclub.model;
 
 import lombok.Getter;
 
+/**
+ * Representation of type of tennis game
+ */
 @Getter
 public enum GameType {
     SINGLES(1),

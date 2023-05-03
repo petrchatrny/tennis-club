@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing user's reservation in tennis club
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

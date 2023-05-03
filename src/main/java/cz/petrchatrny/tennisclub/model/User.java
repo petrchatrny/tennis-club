@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.util.Set;
 
+/**
+ * Entity representing user - customer or administrator
+ */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

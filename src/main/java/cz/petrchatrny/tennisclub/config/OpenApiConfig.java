@@ -8,6 +8,9 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Swagger documentation configuration
+ */
 @Configuration
 public class OpenApiConfig {
     public static final String SECURITY_SCHEME = "bearer-jwt";
