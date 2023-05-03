@@ -56,12 +56,13 @@ public class UserService {
         return user;
     }
 
-    public boolean authenticateUser(String phoneNumber, String password) {
+    public User authenticateUser(String phoneNumber, String password) {
         User user = userRepository.getOne(phoneNumber);
-        if (user == null) {
-            return false;
+
+        if (user != null && !SecurityUtil.hash(password, user.getSalt()).equals(user.getPassword())) {
+            user = null;
         }
 
-        return SecurityUtil.hash(password, user.getSalt()).equals(user.getPassword());
+        return user;
     }
 }

@@ -1,13 +1,16 @@
 package cz.petrchatrny.tennisclub.controller;
 
+import cz.petrchatrny.tennisclub.config.OpenApiConfig;
 import cz.petrchatrny.tennisclub.dto.reservation.BaseReservationDTO;
 import cz.petrchatrny.tennisclub.dto.reservation.CreateReservationDTO;
 import cz.petrchatrny.tennisclub.dto.reservation.ResponseReservationDTO;
 import cz.petrchatrny.tennisclub.service.ReservationService;
+import cz.petrchatrny.tennisclub.util.AdminEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +35,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "401", description = "Unauthenticated access", content = @Content),
             @ApiResponse(responseCode = "403", description = "Unauthorized access", content = @Content)
     })
+    @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEME)
     public ResponseEntity<Collection<ResponseReservationDTO>> getReservations(
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(required = false) Long courtNumber,
@@ -62,6 +66,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "409", description = "Time interval occupied", content = @Content),
             @ApiResponse(responseCode = "422", description = "Unexpected user input", content = @Content)
     })
+    @AdminEndpoint
     public ResponseEntity<ResponseReservationDTO> updateReservation(@PathVariable Long id, @RequestBody BaseReservationDTO dto) {
         return new ResponseEntity<>(reservationService.updateReservation(id, dto), HttpStatus.ACCEPTED);
     }
@@ -74,6 +79,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "403", description = "Unauthorized access"),
             @ApiResponse(responseCode = "404", description = "Reservation not found")
     })
+    @AdminEndpoint
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
