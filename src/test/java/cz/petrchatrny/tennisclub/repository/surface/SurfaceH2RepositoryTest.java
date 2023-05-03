@@ -77,9 +77,7 @@ class SurfaceH2RepositoryTest {
         repository.delete(mockSurface.getId());
 
         // won't get deleted one
-        assertThrows(NoResultException.class, () -> {
-            repository.getOne(mockSurface.getId());
-        });
+        assertNull(repository.getOne(mockSurface.getId()));
     }
 
     @Test

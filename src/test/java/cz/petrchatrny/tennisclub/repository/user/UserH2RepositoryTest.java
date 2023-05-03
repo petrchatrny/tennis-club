@@ -77,7 +77,7 @@ class UserH2RepositoryTest {
 
         // won't get deleted
         repository.delete(mockUser.getId());
-        assertThrows(NoResultException.class, () -> repository.getOne(mockUser.getId()));
+        assertNull(repository.getOne(mockUser.getId()));
     }
 
     @Test
@@ -101,11 +101,11 @@ class UserH2RepositoryTest {
         repository.create(mockUser);
 
         assertEquals(mockUser, repository.getOne(PHONE_NUMBER));
-        assertThrows(NoResultException.class, () -> repository.getOne("nonsence"));
+        assertNull(repository.getOne("nonsence"));
 
         // won't get deleted one
         repository.delete(mockUser.getId());
-        assertThrows(NoResultException.class, () -> repository.getOne(PHONE_NUMBER));
+        assertNull(repository.getOne(PHONE_NUMBER));
     }
 
     @Test
