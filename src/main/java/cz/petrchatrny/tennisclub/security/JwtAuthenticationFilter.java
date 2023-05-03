@@ -63,8 +63,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             User user = userService.getUser(userPhoneNumber);
             if (user != null) {
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(user.getRole().toString()));
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
+                // make user authenticated and authorized
                 SecurityContextHolder.getContext().setAuthentication(
                         new UsernamePasswordAuthenticationToken(
                                 userPhoneNumber, null, authorities
