@@ -7,15 +7,15 @@ class CourtController <<  RestController  >> {
     + CourtController(courtService: CourtService)
     + getCourts(): Collection<ResponseCourtDTO>
     + createCourt(court: CreateCourtDTO) : ResponseCourtDTO
-    + updateCourt(court: UpdateCourtDTO): ResponseCourtDTO
+    + updateCourt(id: Long, court: UpdateCourtDTO): ResponseCourtDTO
     + deleteCourt(id: Long)
 }
 
 class ReservationController <<  RestController  >> {
     + ReservationController(reservationService: ReservationService)
-    + getReservations(phoneNumber: String, courtNumber: Long, orderByCreation: Boolean): Collection<ResponseReservationDTO>
-    + createReservation(reservation: CreateReservationDTO) : BigDecimal
-    + updateReservation(reservation: UpdateReservationDTO): ResponseReservationDTO
+    + getReservations(phoneNumber: String, courtNumber: Long, pendingOnly: Boolean): Collection<ResponseReservationDTO>
+    + createReservation(reservation: CreateReservationDTO) : ResponseReservationDTO
+    + updateReservation(id: Long, reservation: BaseReservationDTO): ResponseReservationDTO
     + deleteReservation(id: Long)
 }
 
@@ -23,65 +23,80 @@ class SurfaceController <<  RestController >> {
     + SurfaceController(surfaceService: SurfaceService)
     + getSurfaces(): Collection<ResponseSurfaceDTO>
     + createSurface(surface: CreateSurfaceDTO) : ResponseSurfaceDTO
-    + updateSurface(surface: UpdateSurfaceDTO): ResponseSurfaceDTO
+    + updateSurface(surface: CreateSurfaceDTO): ResponseSurfaceDTO
     + deleteSurface(id: Long)
 }
 
 class AuthController <<  RestController  >> {
-   - authService: AuthService
-   + login()
+   + AuthController(authService: AuthService)
+   + login(request: HttpServletRequest)
 }
 
 '----------------
 ' SERVICES
 '----------------
 class CourtService <<  Service  >> {
-    + CourtService(courtRepository: ICourtRepository)
+    + CourtService(courtRepository: ICourtRepository, surfaceService: SurfaceService)
     + getCourts(): Collection<ResponseCourtDTO>
     + createCourt(court: CreateCourtDTO) : ResponseCourtDTO
     + updateCourt(court: UpdateCourtDTO): ResponseCourtDTO
     + deleteCourt(id: Long)
+    + checkExistingCourt(id: Long) : Court
 }
 
 class ReservationService <<  Service  >> {
+    - MINIMAL_RESERVATION_DURATION_IN_MINUTES: long
+    + ReservationService(reservationRepository: IReservationRepository, userService: UserService, courtService: CourtService)
     + getReservations(phoneNumber: String, courtNumber: Long, orderByCreation: Boolean): Collection<ResponseReservationDTO>
-    + createReservation(reservation: CreateReservationDTO) : BigDecimal
-    + updateReservation(reservation: UpdateReservationDTO): ResponseReservationDTO
+    + createReservation(dto: CreateReservationDTO) : BigDecimal
+    + updateReservation(id: Long, dto: BaseReservationDTO): ResponseReservationDTO
     + deleteReservation(id: Long)
+    - validateReservation(id: Long): Reservation
+    - validateUser(dto: CreateReservationDTO): User
+    - validateInputs(dto: BaseReservationDTO)
+    - baseInputValidation(dto: BaseReservationDTO): Map<String, String>
+    - createReservationInputValidation(dto: CreateReservationDTO): Map<String, String>
+    - resolvePrice(id: Long): BigDecimal
 }
 
 class UserService <<  Service  >> {
     + UserService(userRepository: IUserRepository, smsService: ISmsService)
-    + getUsers(phoneNumber: String) : Collection<User>
+    + getUsers() : Collection<User>
     + getUser(phoneNumber: String, password: String): User
-    + createUser(user: CreateReservationDTO) : User
+    + createUser(phoneNumber: String, fullName: String) : User
+    + authenticateUser(phoneNumber: String, password: String)
 }
 
 class SurfaceService <<  Service  >> {
-    + SurfaceService(surfaceRepository: ISurfaceRepository)
+    + SurfaceService(surfaceRepository: ISurfaceRepository, surfacePriceRepository: ISurfacePriceRepository)
     + getSurfaces(): Collection<ResponseSurfaceDTO>
-    + createSurface(surface: CreateSurfaceDTO) : ResponseSurfaceDTO
-    + updateSurface(surface: UpdateSurfaceDTO): ResponseSurfaceDTO
+    + createSurface(dto: CreateSurfaceDTO) : ResponseSurfaceDTO
+    + updateSurface(id: Long, surface: CreateSurfaceDTO): ResponseSurfaceDTO
     + deleteSurface(id: Long)
+    + checkExistingSurface(id: Long): Surface
+    - validateInputs(dto: CreateSurfaceDTO)
+    - validation(dto CreateSurfaceDTO): Map<String, String>
+    - createNewPrice(pricePerMinuteInCzk: BigDecimal): SurfacePrice
+    - checkSurfaceDependencies(id: Long)
 }
 
 class AuthService <<  Service  >> {
     + AuthService(jwtService: JwtService, userService: UserService)
-    + authenticate()
+    + authenticate(request: HttpServletRequest)
+    - parseCredentials(authorizationHeader: String): String[]
 }
 
 class JwtService <<  Service  >> {
-    - secret: String
-    - accessTokenExpiration: long
-    - refreshTokenExpiration: long
-    + generateToken(user: User) : String
-    + isTokenValid(token: String): boolean
+    + JwtService(jwtConfig: JwtConfig)
+    + generateToken(claims: Map<String, Object>, phoneNumber: String) : String
+    + getUserPhoneNumber(token: String): String
     + isTokenExpired(token: String): boolean
-    + extractClaims(token: String) : Claims
+    - getSignInKey(): Key
+    - extractAllClaims(token: String): Claims
 }
 
 interface ISmsService {
-    + sendRegistrationMessage(user: User)
+    + sendRegistrationMessage(phoneNumber: String, password: String)
 }
 
 class SmsTwilioService implements ISmsService
@@ -116,7 +131,9 @@ class CourtH2Repository implements ICourtRepository {
 
 'reservation repository
 interface IReservationRepository extends ICRUDSoftDeleteRepository {
-    + getAllByUser(userPhoneNumber: String, courtNumber: Long, pendingOnly: Boolean)
+    + getAll(userPhoneNumber: String, courtId: Long, pendingOnly: Boolean): Collection<Reservation>
+    + isIntervalConflicting(courtId: Long, heldAt: LocalDateTime, heldUntil: LocalDateTime): Boolean
+    + getPrice(id: Long): BigDecimal
 }
 class ReservationH2Repository implements IReservationRepository {
     - entityManager: EntityManager
@@ -193,6 +210,7 @@ CourtController "0...*" o--> "1" CourtService : has >
 ReservationController "0...*" o--> "1" ReservationService : has >
 ReservationService "0...*" o--> "1" UserService : uses >
 ReservationService "0...*" o--> "1" IReservationRepository : has >
+ReservationService "0...*" o--> "1" CourtService : uses >
 
 UserService "0...*" o--> "1" ISmsService : uses >
 UserService "0...*" o--> "1" IUserRepository : has >
